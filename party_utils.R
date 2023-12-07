@@ -80,7 +80,7 @@ scale_color_parties <- function(...){
 
 election_dat30 <- readRDS("../data/election_dat30.rds") %>%
   # left_join(all_dat) %>%
-  filter(party != "Aut")  %>%
+  rename(internal_id = page_id) %>%
   filter(is.na(no_data)) %>% 
   drop_na(party)
 
