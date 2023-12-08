@@ -44,18 +44,48 @@ setColors <- function(df) {
   return(df)
 }
 
+country_codes <- c("AD", "AL", "AM", "AR", "AT", 
+                   "AU", "BA", "BE", "BG", "BR", 
+                   "CA", "CH", "CL", "CO", "CY", 
+                   "CZ", "DE", "DK", "EC", "EE", 
+                   "ES", "FI", "FR", "GB", "GR", 
+                   "GT", "HR", "HU", "IE", "IN", 
+                   "IS", "IT", "LI", "LT", "LU", 
+                   "LV", "MD", "ME", "MK", "MT",
+                   "MX", "NL", "NO", "NZ", "PL", 
+                   "PT", "RO", "RS", "SE", "SI", 
+                   "SK", "SM", "TR", "UA", "US", 
+                   "VE", "ZA")
 
 
-res <- GET(url = paste0("https://data-api.whotargets.me/entities?%24client%5BwithCountries%5D=true&countries.alpha2%5B%24in%5D%5B0%5D=", str_to_lower(sets$cntry)))
-color_dat <- content(res) %>% 
-  flatten() %>% 
-  map(compact)%>% 
-  map_dfr(as_tibble) %>% 
-  drop_na(id) %>% 
-  rename(party = short_name) %>% 
-  select(party, color) %>% 
-  setColors() %>% 
-  rename(colors = color)
+if(sets$cntry %in% country_codes){
+  res <- GET(url = paste0("https://data-api.whotargets.me/entities?%24client%5BwithCountries%5D=true&countries.alpha2%5B%24in%5D%5B0%5D=", str_to_lower(sets$cntry)))
+  color_dat <- content(res) %>% 
+    flatten() %>% 
+    map(compact)%>% 
+    map_dfr(as_tibble) %>% 
+    drop_na(id) %>% 
+    rename(party = short_name) %>% 
+    select(party, color) %>% 
+    setColors() %>% 
+    rename(colors = color)
+} else {
+  polsample <- readRDS("../data/polsample.rds")
+  partycolorsdataset  <- readRDS("../data/partycolorsdataset.rds")
+ 
+ color_dat <- polsample %>% 
+   # count(cntry, partyfacts_id, sort = T) %>% View()
+   filter(cntry == sets$cntry) %>%
+   select(party = name_short, partyfacts_id) %>% 
+   distinct(partyfacts_id, party) %>% 
+   left_join(partycolorsdataset %>% mutate(partyfacts_id = as.character(partyfacts_id))) %>% 
+   select(party, color = hex)  %>% 
+   setColors() %>% 
+   rename(colors = color) %>% 
+   drop_na(party)
+}
+
+
 
 
 
@@ -78,19 +108,41 @@ scale_color_parties <- function(...){
 }
 
 
-election_dat30 <- readRDS("../data/election_dat30.rds") %>%
-  # left_join(all_dat) %>%
-  rename(internal_id = page_id) %>%
-  filter(is.na(no_data)) %>% 
-  drop_na(party)
+if(sets$cntry %in% country_codes){
+  
+  election_dat30 <- readRDS("../data/election_dat30.rds") %>%
+    rename(internal_id = page_id) %>%
+    filter(is.na(no_data)) %>% 
+    drop_na(party) %>% 
+    filter(party %in% color_dat$party)
+  
+  
+  
+  election_dat7 <- readRDS("../data/election_dat7.rds") %>%
+    rename(internal_id = page_id) %>%
+    filter(is.na(no_data)) %>% 
+    drop_na(party) %>% 
+    filter(party %in% color_dat$party)
 
+} else {
+  
+  election_dat30 <- readRDS("../data/election_dat30.rds") %>%
+    rename(internal_id = page_id) %>%
+    filter(is.na(no_data)) %>% 
+    drop_na(party) %>% 
+    filter(party %in% color_dat$party) %>% 
+    filter(source != "tep")
+  
+  
+  
+  election_dat7 <- readRDS("../data/election_dat7.rds") %>%
+    rename(internal_id = page_id) %>%
+    filter(is.na(no_data)) %>% 
+    drop_na(party) %>% 
+    filter(party %in% color_dat$party) %>% 
+    filter(source != "tep")
 
-
-election_dat7 <- readRDS("../data/election_dat7.rds") %>%
-  # left_join(all_dat) %>%
-  rename(internal_id = page_id) %>%
-  filter(is.na(no_data)) %>% 
-  drop_na(party)
+}
 
 
 # saveRDS(election_dat30, "../data/election_dat30.rds")
