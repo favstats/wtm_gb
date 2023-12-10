@@ -48,17 +48,45 @@ write_lines(lubridate::as_date(tstamp), "tstamp.txt")
 
 # tstamp <- Sys.time()
 
+country_codes <- c("AD", "AL", "AM", "AR", "AT", 
+                   "AU", "BA", "BE", "BG", "BR", 
+                   "CA", "CH", "CL", "CO", "CY", 
+                   "CZ", "DE", "DK", "EC", "EE", 
+                   "ES", "FI", "FR", "GB", "GR", 
+                   "GT", "HR", "HU", "IE", "IN", 
+                   "IS", "IT", "LI", "LT", "LU", 
+                   "LV", "MD", "ME", "MK", "MT",
+                   "MX", "NL", "NO", "NZ", "PL", 
+                   "PT", "RO", "RS", "SE", "SI", 
+                   "SK", "SM", "TR", "UA", "US", 
+                   "VE", "ZA")
+
+if(sets$cntry %in% country_codes){
+  
 download.file(paste0("https://data-api.whotargets.me/advertisers-export-csv?countries.alpha2=", str_to_lower(sets$cntry)), destfile = "data/wtm_advertisers.csv")
 
 wtm_data <- read_csv("data/wtm_advertisers.csv") %>% #names
   select(page_id = advertisers_platforms.advertiser_platform_ref,
          page_name = name, party = entities.short_name)  %>%
-  mutate(page_id = as.character(page_id)) 
+  mutate(page_id = as.character(page_id)) %>% 
+  mutate(source = "wtm")
+
+} else {
+  wtm_data <-  tibble(no_data = T)
+}
+
+polsample <- readRDS("data/polsample.rds")
+
+tep_dat <- polsample %>% 
+  filter(cntry %in% sets$cntry) %>% 
+  mutate(source = "tep") %>% 
+  rename(party = name_short)
 
 all_dat <- #read_csv("nl_advertisers.csv") %>%
   # mutate(page_id = as.character(page_id)) %>%
   # bind_rows(internal_page_ids) %>%
   bind_rows(wtm_data) %>%
+  bind_rows(tep_dat) %>%
   # bind_rows(rep) %>%
   # bind_rows(more_data %>% mutate(source = "new")) %>%
   # bind_rows(groenams) %>%
