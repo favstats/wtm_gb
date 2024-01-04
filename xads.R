@@ -287,3 +287,69 @@ cat(body)
 cntr_dat
 
 
+
+wsdat2 <- cntr_dat %>% 
+  filter(str_detect(rich_label, "Country")) %>% 
+  distinct(api_targeting_value, .keep_all = T) %>% 
+  # slice(10) %>% 
+  filter(str_detect(label, "United States")) %>%
+  split(1:nrow(.)) %>% 
+  map_dfr_progress(get_audience_estimates2)
+
+get_cntries2 <- possibly(get_cntries, quiet = F, otherwise = NULL)
+
+american_states <- c(
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", 
+  "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+  "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", 
+  "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", 
+  "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", 
+  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+)
+
+
+states_dat <- american_states %>% 
+  map_dfr_progress(get_cntries2)
+
+state_audiences <- states_dat %>% 
+  filter(str_detect(rich_label, "Region or state")) %>% 
+  distinct(api_targeting_value, .keep_all = T)  %>% 
+  # slice(10) %>% 
+  # filter(str_detect(label, "United States")) %>%
+  split(1:nrow(.)) %>% 
+  map_dfr_progress(get_audience_estimates2, keywords)
+
+
+radicals <- state_audiences %>% 
+  left_join(states_dat %>% 
+              filter(str_detect(rich_label, "Region or state")) %>% 
+              distinct(api_targeting_value, .keep_all = T) %>% rename(cntry = label)) %>% 
+  mutate(perc = max/audience_size*100)  %>% 
+  mutate(perc = ifelse(is.na(perc), 0, perc)) 
+
+
+read_csv("https://raw.githubusercontent.com/fivethirtyeight/election-results/main/election_results_presidential.csv") %>% 
+  drop_na(state) %>% 
+  filter(cycle == "2020") %>% 
+  filter(candidate_name == "Donald Trump") %>% 
+  filter(stage == "general") %>% 
+  mutate(state = str_remove_all(state, " CD-*?")) %>% 
+  mutate(state = str_remove_all(state, "-[:digit:]") %>% str_trim() %>% str_squish())  %>%
+  distinct(state, .keep_all = T) %>% 
+  group_by(state) %>%
+  summarize(percent = mean(as.numeric(percent))) %>%
+  ungroup() %>% 
+  left_join(radicals %>% rename(state = cntry))%>% #View() 
+  filter(perc != 0) %>% 
+  ggplot(aes(percent, perc)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggpubr::stat_cor(label.x.npc = "center") +
+  labs(y = "share of radical people on X per state", x  = "Trump Vote Share 2020") +
+  ggrepel::geom_text_repel(aes(label = state)) +
+  theme_minimal()
+  # View()
