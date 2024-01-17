@@ -32,6 +32,13 @@ pacman::p_load(knitr, tidyverse, rmarkdown, openxlsx, sf, shiny)
 source(here::here("utils.R"))
 source(here::here("party_utils.R"))
 
+color_dat <- color_dat %>% 
+  mutate(colors = case_when(
+    colors == "orange" ~ "#f77604",
+    colors == "green" ~ "#7aba2d",
+    T ~ colors
+  ))
+
 ```
 
 

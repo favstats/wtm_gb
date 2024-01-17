@@ -17,9 +17,9 @@ library(rvest)
 
 sets <- jsonlite::fromJSON("settings.json")
 
-title_txt <- read_lines("_site/_quarto.yml")
-title_txt[which(str_detect(title_txt, "title"))[1]] <-  glue::glue('  title: "{sets$dashboard}"')
-write_lines(title_txt, "_site/_quarto.yml")
+# title_txt <- read_lines("_site/_quarto.yml")
+# title_txt[which(str_detect(title_txt, "title"))[1]] <-  glue::glue('  title: "{sets$dashboard}"')
+# write_lines(title_txt, "_site/_quarto.yml")
 
 if(Sys.info()[["sysname"]]=="Windows"){
   ### CHANGE ME WHEN LOCAL!
@@ -83,11 +83,14 @@ thedat <- read_csv("data/wtm_advertisers.csv")
 
 if(sets$cntry %in% country_codes & nrow(thedat)!=0){
   
+  color_dat <- readRDS("data/color_dat.rds")
+  
   wtm_data <- read_csv("data/wtm_advertisers.csv") %>% #names
     select(page_id = advertisers_platforms.advertiser_platform_ref,
-           page_name = name, party = entities.short_name)  %>%
+           page_name = name, short_name = entities.short_name)  %>%
     mutate(page_id = as.character(page_id)) %>% 
-    mutate(sources = "wtm")
+    mutate(sources = "wtm") %>% 
+    left_join(color_dat)
   
 } else {
   wtm_data <-  tibble(no_data = T)

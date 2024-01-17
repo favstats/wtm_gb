@@ -3,21 +3,21 @@ project:
   output-dir: ../docs
 
 website:
-  title: "Who Targets Me -United Kingdom"
+  title: "{{< iconify twemoji flag-united-kingdom >}} Who Targets Me - United Kingdom"
   navbar:
     left:
       - href: index.qmd
-        text: Spending
+        text: "{{< iconify ph coins >}} Spending"
       - sidebar:targeting
       - href: about.qmd
-        text: About
+        text: "{{< iconify ph info-thin >}} About"
     right:
       - icon: github
         href: https://github.com/favstats/betargex
   sidebar:
     - id: ""
     - id: targeting
-      title: "Targeting"
+      title: "{{< iconify ph users-three-thin >}} Targeting"
       style: "docked"
       collapse-level: 2
       contents:
@@ -33,3 +33,4 @@ format:
       - custom.scss
     mainfont: acumin-pro-semi-condensed, helvetica, arial, sans-serif
     fontsize: 1.2em
+

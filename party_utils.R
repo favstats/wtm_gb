@@ -78,10 +78,12 @@ if(!custom){
       map(compact)%>% 
       map_dfr(as_tibble) %>% 
       drop_na(id) %>% 
-      rename(party = short_name) %>% 
-      select(party, contains("color")) %>% 
+      ## this is a speccial UK thing
+      rename(party = name) %>% 
+      select(party, short_name, contains("color")) %>% 
       setColors() %>% 
       rename(colors = color)
+    
   } else {
     polsample <- readRDS(here::here("data/polsample.rds"))
     partycolorsdataset  <- readRDS(here::here("data/partycolorsdataset.rds"))
@@ -97,6 +99,9 @@ if(!custom){
       rename(colors = color) %>% 
       drop_na(party)
   }
+  
+
+  
   
   saveRDS(color_dat, here::here("data/color_dat.rds"))
 } 
@@ -275,7 +280,6 @@ if(nrow(election_dat30)!=0){
   }
   
 }
-
 
 
 
