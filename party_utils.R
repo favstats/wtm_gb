@@ -66,9 +66,18 @@ country_codes <- c("AD", "AL", "AM", "AR", "AT",
                    "VE", "ZA")
 
 
-download.file(paste0("https://data-api.whotargets.me/advertisers-export-csv?countries.alpha2=", str_to_lower(sets$cntry)), destfile = "data/wtm_advertisers.csv")
+try({
+  download.file(paste0("https://data-api.whotargets.me/advertisers-export-csv?countries.alpha2=", str_to_lower(sets$cntry)), destfile = "data/wtm_advertisers.csv")
+  
+  thedat <- read_csv(here::here("data/wtm_advertisers.csv")) %>% 
+    filter(entities.short_name != "ZZZ")
+  
+})
 
-thedat <- read_csv(here::here("data/wtm_advertisers.csv"))
+if(!exists("thedat")){
+  thedat <- tibble(no_data = NULL)
+}
+
 
 if(!custom){
   if(sets$cntry %in% country_codes & nrow(thedat)!=0){
