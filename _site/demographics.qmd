@@ -274,6 +274,9 @@ tags$div(class = "container", do.call(tags$div, rows))
 ```
 :::
 
+
+<br>
+
 ## Gender Targeting
 
 De onderstaande grafieken laten zien hoe partijen gender als focusgroep gebruiken en welk percentage van het budget daaraan werd uitgegeven.
@@ -454,6 +457,9 @@ tags$div(class = "container", do.call(tags$div, rows))
 ```
 :::
 
+
+<br>
+
 ## Language Targeting
 
 The following graphs show how parties use different languages as focus groups and the percentage of the budget allocated to them.
@@ -629,6 +635,9 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 ```
 :::
+
+
+<br>
 
 ## Targeting based on Employment or Education Instituation
 
@@ -878,6 +887,9 @@ tags$div(class = "container", do.call(tags$div, rows))
 ```
 :::
 
+
+<br>
+
 ## Education Levels Targeting
 
 The graphs below illustrate how parties target various education levels as focus groups and the percentage of the budget allocated to each.
@@ -1100,6 +1112,9 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 ```
 :::
+
+
+<br>
 
 ## Relationship Status Targeting
 

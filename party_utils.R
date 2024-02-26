@@ -70,7 +70,7 @@ try({
   download.file(paste0("https://data-api.whotargets.me/advertisers-export-csv?countries.alpha2=", str_to_lower(sets$cntry)), destfile = "data/wtm_advertisers.csv")
   
   thedat <- read_csv(here::here("data/wtm_advertisers.csv")) %>% 
-    filter(entities.short_name != "ZZZ")
+    filter(entities.short_name != "ZZZ") 
   
 })
 
@@ -114,7 +114,6 @@ if(!custom){
   
   saveRDS(color_dat, here::here("data/color_dat.rds"))
 } 
-
 
 
 
@@ -272,6 +271,12 @@ last30days_string <- paste0(create_date(begin30), " - ", create_date(fin), " ", 
 # # Reset locale back to the original if necessary
 # Sys.setlocale("LC_TIME", "C")
 # print("oo")
+
+election_dat30 <- election_dat30 %>% 
+  filter(party != "Dismissed")
+
+election_dat7 <- election_dat7 %>% 
+  filter(party != "Dismissed")
 
 if(nrow(election_dat30)!=0){
   
