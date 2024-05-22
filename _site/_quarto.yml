@@ -31,6 +31,5 @@ format:
     theme:
       - cosmo
       - custom.scss
-    mainfont: acumin-pro-semi-condensed, helvetica, arial, sans-serif
     fontsize: 1.2em
 

@@ -276,6 +276,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
+<br>
 
 ## Gender Targeting
 
@@ -459,6 +460,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
+<br>
 
 ## Language Targeting
 
@@ -637,6 +639,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 :::
 
 
+<br>
 <br>
 
 ## Targeting based on Employment or Education Instituation
@@ -889,6 +892,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
+<br>
 
 ## Education Levels Targeting
 
@@ -1114,6 +1118,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 :::
 
 
+<br>
 <br>
 
 ## Relationship Status Targeting

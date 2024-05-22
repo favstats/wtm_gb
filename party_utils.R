@@ -1,5 +1,4 @@
 # 
-# print("hello")
 # 
 # print(getwd())
 # getwd()
@@ -26,7 +25,6 @@ options(scipen = 999)
 
 
 # wtm_data %>% count(party,sort = T)
-
 
 # sources("here::here(party_utils.R")
 setColors <- function(df) {
@@ -78,43 +76,46 @@ if(!exists("thedat")){
   thedat <- tibble(no_data = NULL)
 }
 
-
-if(!custom){
-  if(sets$cntry %in% country_codes & nrow(thedat)!=0){
+# if(!custom){
+#   if(sets$cntry %in% country_codes & nrow(thedat)!=0){
     res <- GET(url = paste0("https://data-api.whotargets.me/entities?%24client%5BwithCountries%5D=true&countries.alpha2%5B%24in%5D%5B0%5D=", str_to_lower(sets$cntry)))
     color_dat <- content(res) %>% 
       flatten() %>% 
       map(compact)%>% 
       map_dfr(as_tibble) %>% 
       drop_na(id) %>% 
+      distinct(name, .keep_all = T) %>% 
       ## this is a speccial UK thing
       rename(party = name) %>% 
       select(party, short_name, contains("color")) %>% 
       setColors() %>% 
-      rename(colors = color)
-    
-  } else {
-    polsample <- readRDS(here::here("data/polsample.rds"))
-    partycolorsdataset  <- readRDS(here::here("data/partycolorsdataset.rds"))
-    
-    color_dat <- polsample %>% 
-      # count(cntry, partyfacts_id, sort = T) %>% View()
-      filter(cntry == sets$cntry) %>%
-      select(party = name_short, partyfacts_id) %>% 
-      distinct(partyfacts_id, party) %>% 
-      left_join(partycolorsdataset %>% mutate(partyfacts_id = as.character(partyfacts_id))) %>% 
-      select(party, color = hex)  %>% 
-      setColors() %>% 
       rename(colors = color) %>% 
-      drop_na(party)
-  }
+      filter(!short_name %in% c("ConMain","MoL","HC", "Hou", "Bunce", "ZG", "ZZZ", "LabTop100", "McEwan", "Parker", "SH", "NI"))
+    
+  # } else {
+  #   polsample <- readRDS(here::here("data/polsample.rds"))
+  #   partycolorsdataset  <- readRDS(here::here("data/partycolorsdataset.rds"))
+  #   
+  #   color_dat <- polsample %>% 
+  #     # count(cntry, partyfacts_id, sort = T) %>% View()
+  #     filter(cntry == sets$cntry) %>%
+  #     select(party = name_short, partyfacts_id) %>% 
+  #     distinct(partyfacts_id, party) %>% 
+  #     left_join(partycolorsdataset %>% mutate(partyfacts_id = as.character(partyfacts_id))) %>%
+  #     select(party, color = hex)  %>% 
+  #     setColors() %>% 
+  #     rename(colors = color) %>% 
+  #     drop_na(party)
+  # }
   
 
   
   
   saveRDS(color_dat, here::here("data/color_dat.rds"))
-} 
+# } 
 
+
+print("hello")
 
 
 most_left_party <- color_dat$party[1]
@@ -155,6 +156,7 @@ if(!exists("election_dat7")){
   election_dat7 <- readRDS(here::here("data/election_dat7.rds"))
 }
 # print("hello2")
+
 
 if(sets$cntry %in% country_codes & nrow(thedat)!=0){
   
