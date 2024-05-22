@@ -115,7 +115,7 @@ if(!exists("thedat")){
 # } 
 
 
-print("hello")
+# print("hello")
 
 
 most_left_party <- color_dat$party[1]

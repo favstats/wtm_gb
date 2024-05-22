@@ -5,7 +5,7 @@ format:
     theme: lumen
 ---
 
-```{r, echo = F, warning=F, message=F}
+```{r setup, include=FALSE}
 # dir()
 here::i_am("wtm_gb.Rproj")
 
@@ -58,7 +58,7 @@ card <- div(
         style = "display: flex; justify-content: center;",
         img(
           class = "card-img", 
-          src = "https://www.uva.nl/binaries/_ht_1677599571673/cardmedium/content/gallery/personen/v/o/fabio-votta.jpg",
+          src = "1024-1536.jpg",
           style = "max-width: 500px;"  # Adjusted max-width to control image size
         )
       )

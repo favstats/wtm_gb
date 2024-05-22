@@ -280,7 +280,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 ## Gender Targeting
 
-De onderstaande grafieken laten zien hoe partijen gender als focusgroep gebruiken en welk percentage van het budget daaraan werd uitgegeven.
+The graphs below show how parties target gender and what percentage of the budget was spent on it.
 
 > Note: targeting criteria may overlap, so the total may not necessarily be 100%.
 

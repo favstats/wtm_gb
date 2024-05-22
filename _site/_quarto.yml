@@ -13,7 +13,7 @@ website:
         text: "{{< iconify ph info-thin >}} About"
     right:
       - icon: github
-        href: https://github.com/favstats/betargex
+        href: https://github.com/favstats/wtm_gb
   sidebar:
     - id: ""
     - id: targeting
@@ -25,7 +25,8 @@ website:
         - detailed.qmd
         - location.qmd
         - demographics.qmd
-
+  search: false
+  
 format:
   html:
     theme:
