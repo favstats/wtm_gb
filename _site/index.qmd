@@ -155,7 +155,7 @@ get_table_dat <- function(x, var) {
         mutate(total_spend_formatted = scales::comma(total_spend_formatted)) %>%
         mutate(n_words = str_count(page_name, " ")) %>%
         mutate(
-          lab =  glue::glue('[||ppage_namep||](https://www.facebook.com/ads/library/?ad_type=political_and_issue_ads&country=NL&view_all_page_id=||pinternal_idp||) (||pcurrency_symbolp||||ptotal_spend_formattedp||)', .open = "||p", .close = "p||")
+          lab =  glue::glue('[||ppage_namep||](https://www.facebook.com/ads/library/?ad_type=political_and_issue_ads&country=GB&view_all_page_id=||pinternal_idp||) (||pcurrency_symbolp||||ptotal_spend_formattedp||)', .open = "||p", .close = "p||")
           ) %>%
         select({
           {
