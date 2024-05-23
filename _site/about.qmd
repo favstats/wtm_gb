@@ -10,6 +10,8 @@ format:
 here::i_am("wtm_gb.Rproj")
 
 library(tidyverse)
+library(htmltools)
+
 sets <- jsonlite::fromJSON(here::here("settings.json"))
 
 source(here::here("party_utils.R"))
@@ -45,8 +47,6 @@ The data shown in this dashboard is based on the platform's respective ad librar
 
 
 ```{r, echo=F}
-
-library(htmltools)
 
 card <- div(
   class = "card",
