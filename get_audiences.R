@@ -64,28 +64,15 @@ write_lines(lubridate::as_date(tstamp), "tstamp.txt")
 
 # tstamp <- Sys.time()
 
-country_codes <- c("AD", "AL", "AM", "AR", "AT", 
-                   "AU", "BA", "BE", "BG", "BR", 
-                   "CA", "CH", "CL", "CO", "CY", 
-                   "CZ", "DE", "DK", "EC", "EE", 
-                   "ES", "FI", "FR", "GB", "GR", 
-                   "GT", "HR", "HU", "IE", "IN", 
-                   "IS", "IT", "LI", "LT", "LU", 
-                   "LV", "MD", "ME", "MK", "MT",
-                   "MX", "NL", "NO", "NZ", "PL", 
-                   "PT", "RO", "RS", "SE", "SI", 
-                   "SK", "SM", "TR", "UA", "US", 
-                   "VE", "ZA")
-
-download.file(paste0("https://data-api.whotargets.me/advertisers-export-csv?countries.alpha2=", str_to_lower(sets$cntry)), destfile = "data/wtm_advertisers.csv")
-
-thedat <- read_csv("data/wtm_advertisers.csv")
+thedat <- vroom::vroom("data/1c162e28-c8ab-47dc-a1d6-19e36dce7742.csv.gzip") %>% 
+  filter(entities_groups.group_name == "Main parties") %>% 
+  filter(entities.short_name != "ZZZ") 
 
 if(sets$cntry %in% country_codes & nrow(thedat)!=0){
   
   color_dat <- readRDS("data/color_dat.rds")
   
-  wtm_data <- read_csv("data/wtm_advertisers.csv") %>% #names
+  wtm_data <- thedat%>% #names
     select(page_id = advertisers_platforms.advertiser_platform_ref,
            page_name = name, short_name = entities.short_name)  %>%
     mutate(page_id = as.character(page_id)) %>% 

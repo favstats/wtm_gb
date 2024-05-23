@@ -64,17 +64,10 @@ country_codes <- c("AD", "AL", "AM", "AR", "AT",
                    "VE", "ZA")
 
 
-try({
-  download.file(paste0("https://data-api.whotargets.me/advertisers-export-csv?countries.alpha2=", str_to_lower(sets$cntry)), destfile = "data/wtm_advertisers.csv")
-  
-  thedat <- read_csv(here::here("data/wtm_advertisers.csv")) %>% 
-    filter(entities.short_name != "ZZZ") 
-  
-})
+thedat <- vroom::vroom("data/1c162e28-c8ab-47dc-a1d6-19e36dce7742.csv.gzip") %>% 
+  filter(entities_groups.group_name == "Main parties") %>% 
+  filter(entities.short_name != "ZZZ") 
 
-if(!exists("thedat")){
-  thedat <- tibble(no_data = NULL)
-}
 
 # if(!custom){
 #   if(sets$cntry %in% country_codes & nrow(thedat)!=0){
@@ -158,7 +151,7 @@ if(!exists("election_dat7")){
 # print("hello2")
 
 
-if(sets$cntry %in% country_codes & nrow(thedat)!=0){
+# if(sets$cntry %in% country_codes & nrow(thedat)!=0){
   
   
   
@@ -176,65 +169,65 @@ if(sets$cntry %in% country_codes & nrow(thedat)!=0){
     drop_na(party) %>% 
     filter(party %in% color_dat$party)
   
-} else if (custom){
-  
-  raw <- election_dat30 %>%
-    rename(internal_id = contains("page_id")) %>%
-    filter(is.na(no_data)) 
-  
-  if(nrow(raw)==0){
-    election_dat30 <- tibble()
-  } else {
-    election_dat30 <- raw %>% 
-      drop_na(party) %>% 
-      filter(party %in% color_dat$party)
-  }
-  
-  
-  
-  raw <- election_dat7 %>%
-    rename(internal_id = contains("page_id")) %>%
-    filter(is.na(no_data)) 
-  
-  if(nrow(raw)==0){
-    election_dat7 <- tibble()
-  } else {
-    election_dat7 <- raw %>% 
-      drop_na(party)  %>% 
-      filter(party %in% color_dat$party)
-  }
-  
-} else {
-  
-  raw <- election_dat30 %>%
-    rename(internal_id = contains("page_id")) %>%
-    filter(is.na(no_data)) %>% 
-    filter(sources == "wtm")
-  
-  if(nrow(raw)==0){
-    election_dat30 <- tibble()
-  } else {
-    election_dat30 <- raw %>% 
-      drop_na(party) %>% 
-      filter(party %in% color_dat$party)
-  }
-  
-  
-  
-  raw <- election_dat7 %>%
-    rename(internal_id = contains("page_id")) %>%
-    filter(is.na(no_data)) %>% 
-    filter(sources == "wtm")
-  
-  if(nrow(raw)==0){
-    election_dat7 <- tibble()
-  } else {
-    election_dat7 <- raw %>% 
-      drop_na(party)  %>% 
-      filter(party %in% color_dat$party)
-  }
-  
-}
+# } else if (custom){
+#   
+#   raw <- election_dat30 %>%
+#     rename(internal_id = contains("page_id")) %>%
+#     filter(is.na(no_data)) 
+#   
+#   if(nrow(raw)==0){
+#     election_dat30 <- tibble()
+#   } else {
+#     election_dat30 <- raw %>% 
+#       drop_na(party) %>% 
+#       filter(party %in% color_dat$party)
+#   }
+#   
+#   
+#   
+#   raw <- election_dat7 %>%
+#     rename(internal_id = contains("page_id")) %>%
+#     filter(is.na(no_data)) 
+#   
+#   if(nrow(raw)==0){
+#     election_dat7 <- tibble()
+#   } else {
+#     election_dat7 <- raw %>% 
+#       drop_na(party)  %>% 
+#       filter(party %in% color_dat$party)
+#   }
+#   
+# } else {
+#   
+#   raw <- election_dat30 %>%
+#     rename(internal_id = contains("page_id")) %>%
+#     filter(is.na(no_data)) %>% 
+#     filter(sources == "wtm")
+#   
+#   if(nrow(raw)==0){
+#     election_dat30 <- tibble()
+#   } else {
+#     election_dat30 <- raw %>% 
+#       drop_na(party) %>% 
+#       filter(party %in% color_dat$party)
+#   }
+#   
+#   
+#   
+#   raw <- election_dat7 %>%
+#     rename(internal_id = contains("page_id")) %>%
+#     filter(is.na(no_data)) %>% 
+#     filter(sources == "wtm")
+#   
+#   if(nrow(raw)==0){
+#     election_dat7 <- tibble()
+#   } else {
+#     election_dat7 <- raw %>% 
+#       drop_na(party)  %>% 
+#       filter(party %in% color_dat$party)
+#   }
+#   
+# }
 
 
 # print(glimpse(election_dat30))
