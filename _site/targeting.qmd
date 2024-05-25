@@ -492,6 +492,8 @@ hchart(overall_spend, type = "bar", hcaes(x = max_calc, y = perc), color = "grey
       enabled = TRUE
     )
 ```
+
+
 ```{r, eval = F}
 col_each30 %>% 
   filter(target != "countries") %>% 

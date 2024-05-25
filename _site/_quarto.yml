@@ -3,19 +3,19 @@ project:
   output-dir: ../docs
   
 website:
-  title: "{{< iconify twemoji flag-united-kingdom >}} Who Targets Me - United Kingdom"
+  title: "Who Targets Me - GE2024"
+  favicon: "wtm_logo_2020_transparent-150x150.png"
   navbar:
+    logo: "wtm_logo_2020_transparent-300x300.png"
     left:
       - href: index.qmd
-        text: "{{< iconify ph coins >}} Spending"
+        text: "{{< iconify ph coins-thin >}} Spending"
       - sidebar:targeting
+      - href: foverview.qmd
+        text: "{{< iconify ph article-thin >}} Overview"
+    right:
       - href: about.qmd
         text: "{{< iconify ph info-thin >}} About"
-    right:
-      - href: foverview.wmd
-        text: "{{< iconify ph article-thin >}} Overview"
-      - href: https://github.com/favstats/wtm_gb
-        icon: github
       - href: https://www.whotargets.me/
         text: whotargets.me
   sidebar:
