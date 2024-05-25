@@ -1,4 +1,4 @@
-# 
+
 # 
 # print(getwd())
 # getwd()
@@ -141,7 +141,7 @@ if(Sys.info()[["user"]] != "fabio"){
     unlist() %>% 
     # keep(~str_detect(.x, tf)) %>% 
     # .[100:120] %>% 
-    map_dfr_progress(~{
+    map_dfr(~{
       the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_targeting/releases/expanded_assets/", .x))
       
       the_assets %>% httr::content() %>% 
@@ -190,7 +190,7 @@ if(Sys.info()[["user"]] != "fabio"){
     unlist() %>% 
     # keep(~str_detect(.x, tf)) %>% 
     # .[100:120] %>% 
-    map_dfr_progress(~{
+    map_dfr(~{
       the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_targeting/releases/expanded_assets/", .x))
       
       the_assets %>% httr::content() %>% 

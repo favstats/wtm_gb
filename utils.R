@@ -441,5 +441,3 @@ map_chr_progress <- function(.x, .f, ...) {
   }
   purrr::map_chr(.x, f, ...)
 }
-
-
