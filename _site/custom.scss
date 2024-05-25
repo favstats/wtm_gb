@@ -129,7 +129,8 @@ button:hover {
 .panel-tabset {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid #ccc; /* Adds a top border to the whole set for continuity */
+  border-top: none; /* Adds a top border to the whole set for continuity */
+  border-bottom: none; /* Adds a top border to the whole set for continuity */
   padding: 0em !important;
   margin-bottom: 0.25em !important;
 }
@@ -146,9 +147,10 @@ button:hover {
 
 
 .nav-tabs {
-  border-bottom: 1px solid #ccc; /* Removes bottom border */
-  border-left: 1px solid #ccc; /* Removes the left border or bar */
-  border-right: 1px solid #ccc; /* Removes the left border or bar */
+  border-top: none; /* Adds a subtle top border */
+  border-bottom: none; /* Adds a subtle top border */
+  border-left: none; /* Adds a subtle top border */
+  border-right: none; /* Adds a subtle top border */
 
 }
 
