@@ -154,18 +154,22 @@ library(highcharter)
 library(dplyr)
 
 plot_geography <- function(x) {
+  
+byparty <- x %>%
+  distinct(internal_id, party, .keep_all = T) %>%
+  group_by(party) %>%
+  summarize(total_spenderino = sum(total)) %>%
+  ungroup() %>%
+  select(party, total_spenderino)
+  
   # x <- col_each30
    gg <- x %>%
   filter(target != "countries") %>% 
-  # group_by(internal_id, target, party) %>% 
-  # arrange(desc(perc)) %>% 
-  # slice(1) %>% 
-  # ungroup() %>% 
   group_by(target, party) %>% 
-  summarize(spend_per = sum(spend_per),
-            total = sum(total))  %>% 
+  summarize(spend_per = sum(spend_per)) %>% 
   ungroup() %>% 
-  mutate(perc = spend_per/total*100) %>%
+  left_join(byparty) %>% 
+  mutate(perc = spend_per/total_spenderino*100) %>% 
     filter(perc >= 0.5) %>%
     mutate(target = case_when(
       target == "custom_audience" ~ "Custom Audiences",

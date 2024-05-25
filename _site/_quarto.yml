@@ -25,6 +25,9 @@ website:
         - detailed.qmd
         - location.qmd
         - demographics.qmd
+      right:
+      - href: https://www.whotargets.me/
+        text: whotargets.me
   search: false
   
 format:
