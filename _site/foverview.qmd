@@ -190,10 +190,10 @@ make_tab <- function(tp = "N-VA") {
   
 yes <<-  election_dat30 %>%
   select(-type) %>% 
-  left_join(lts %>% select(-party, -page_name) %>% 
-              rename(internal_id = page_id), 
-            by = "internal_id") %>%
-  mutate(type = str_remove_all(type, "Lijsttrekkers_")) %>% 
+  # left_join(lts %>% select(-party, -page_name) %>% 
+  #             rename(internal_id = page_id), 
+  #           by = "internal_id") %>%
+  # mutate(type = str_remove_all(type, "Lijsttrekkers_")) %>% 
   filter(party == tp) %>%
   filter(main_currency == the_currency) %>%
   distinct(internal_id, .keep_all = TRUE) %>%

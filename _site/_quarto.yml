@@ -12,10 +12,10 @@ website:
       - href: about.qmd
         text: "{{< iconify ph info-thin >}} About"
     right:
-        href: foverview.wmd
+      - href: foverview.wmd
         text: "{{< iconify ph article-thin >}} Overview"
-      - icon: github
-        href: https://github.com/favstats/wtm_gb
+      - href: https://github.com/favstats/wtm_gb
+        icon: github
       - href: https://www.whotargets.me/
         text: whotargets.me
   sidebar:
