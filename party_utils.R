@@ -5,6 +5,7 @@
 # setwd("_site")
 
 library(httr)
+library(rvest)
 
 custom <- F
 
@@ -131,14 +132,98 @@ scale_color_parties <- function(...){
 
 # print("hello")
 
-if(custom){
-  election_dat30 <- readRDS(here::here("data/election_dat30.rds"))  %>% 
-    select(-contains("party")) %>%
-    left_join(all_dat %>% distinct(page_id, party))
+if(Sys.info()[["user"]] != "fabio"){
+  out <- sets$cntry %>% 
+    map(~{
+      .x %>% 
+        paste0(c("-last_30_days"))
+    }) %>% 
+    unlist() %>% 
+    # keep(~str_detect(.x, tf)) %>% 
+    # .[100:120] %>% 
+    map_dfr_progress(~{
+      the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_targeting/releases/expanded_assets/", .x))
+      
+      the_assets %>% httr::content() %>% 
+        rvest::html_elements(".Box-row") %>% 
+        rvest::html_text()  %>%
+        tibble(raw = .)   %>%
+        # Split the raw column into separate lines
+        mutate(raw = strsplit(as.character(raw), "\n")) %>%
+        # Extract the relevant lines for filename, file size, and timestamp
+        transmute(
+          filename = sapply(raw, function(x) trimws(x[3])),
+          file_size = sapply(raw, function(x) trimws(x[6])),
+          timestamp = sapply(raw, function(x) trimws(x[7]))
+        ) %>% 
+        filter(filename != "Source code") %>% 
+        mutate(release = .x) %>% 
+        mutate_all(as.character)
+    })
   
-  election_dat7 <- readRDS(here::here("data/election_dat7.rds"))  %>% 
-    select(-contains("party")) %>%
-    left_join(all_dat %>% distinct(page_id, party))
+  thosearethere <- out %>% 
+    rename(tag = release,
+           file_name = filename) %>% 
+    arrange(desc(tag)) %>% 
+    separate(tag, into = c("cntry", "tframe"), remove = F, sep = "-") %>% 
+    mutate(ds  = str_remove(file_name, "\\.rds|\\.zip|\\.parquet")) %>% 
+    distinct(cntry, ds, tframe) %>% 
+    drop_na(ds) %>% 
+    arrange(desc(ds))
+  
+  # print(thosearethere)
+  
+  # try({
+  election_dat30 <- arrow::read_parquet(paste0("https://github.com/favstats/meta_ad_targeting/releases/download/", sets$cntry, "-last_", 30,"_days/", thosearethere$ds[1], ".parquet")) %>% 
+    select(-party) %>% 
+    left_join(all_dat %>% select(page_id, party))
+  # })
+  
+  # }
+  
+  # if(!exists("election_dat7")){
+  out <- sets$cntry %>% 
+    map(~{
+      .x %>% 
+        paste0(c("-last_7_days"))
+    }) %>% 
+    unlist() %>% 
+    # keep(~str_detect(.x, tf)) %>% 
+    # .[100:120] %>% 
+    map_dfr_progress(~{
+      the_assets <- httr::GET(paste0("https://github.com/favstats/meta_ad_targeting/releases/expanded_assets/", .x))
+      
+      the_assets %>% httr::content() %>% 
+        html_elements(".Box-row") %>% 
+        html_text()  %>%
+        tibble(raw = .)   %>%
+        # Split the raw column into separate lines
+        mutate(raw = strsplit(as.character(raw), "\n")) %>%
+        # Extract the relevant lines for filename, file size, and timestamp
+        transmute(
+          filename = sapply(raw, function(x) trimws(x[3])),
+          file_size = sapply(raw, function(x) trimws(x[6])),
+          timestamp = sapply(raw, function(x) trimws(x[7]))
+        ) %>% 
+        filter(filename != "Source code") %>% 
+        mutate(release = .x) %>% 
+        mutate_all(as.character)
+    })
+  
+  thosearethere <- out %>% 
+    rename(tag = release,
+           file_name = filename) %>% 
+    arrange(desc(tag)) %>% 
+    separate(tag, into = c("cntry", "tframe"), remove = F, sep = "-") %>% 
+    mutate(ds  = str_remove(file_name, "\\.rds|\\.zip|\\.parquet")) %>% 
+    distinct(cntry, ds, tframe) %>% 
+    drop_na(ds) %>% 
+    arrange(desc(ds))
+  
+  # try({
+  election_dat7 <- arrow::read_parquet(paste0("https://github.com/favstats/meta_ad_targeting/releases/download/", sets$cntry, "-last_", 7,"_days/", thosearethere$ds[1], ".parquet"))  %>% 
+    select(-party) %>% 
+    left_join(all_dat %>% select(page_id, party))
 }
 
 if(!exists("election_dat30")){

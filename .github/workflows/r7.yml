@@ -63,6 +63,8 @@ jobs:
             any::priceR
             any::reactablefmtr
             any::reactable
+            any::piggyback
+            any::arrow
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: "Install Packages"
         run: |
