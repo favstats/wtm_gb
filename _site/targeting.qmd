@@ -34,6 +34,9 @@ pacman::p_load(knitr, tidyverse, rmarkdown, openxlsx, sf, shiny)
 source(here::here("utils.R"))
 source(here::here("party_utils.R"))
 
+calc_targeting2 <- possibly(calc_targeting, otherwise = tibble(no_data = T))
+
+
 ```
 
 
@@ -60,7 +63,11 @@ How much did the campaigns of political parties spend on different audiences? Th
 
 
 ```{r, fig.width=8, fig.height=5, dpi=300}
-col_each30 <- election_dat30 %>%
+
+if(Sys.info()[["user"]] == "fabio"){
+  col_each30 <- readRDS("col_each30.rds")
+} else {
+  col_each30 <- election_dat30 %>%
     mutate(total_spend = total_spend_formatted) %>%
     filter(main_currency == the_currency) %>%
     group_split(internal_id) %>%
@@ -69,7 +76,44 @@ col_each30 <- election_dat30 %>%
             mutate(#coalition = .x$coalition[1],
                    party = .x$party[1],
                    internal_id = .x$internal_id[1])
-    })
+    }) %>% 
+  filter(target != "Gender: All") %>% 
+  filter(target != "Unknown")
+
+
+saveRDS(col_each30, "col_each30.rds")
+
+
+
+  col_each30_excl <- election_dat30 %>%
+    mutate(total_spend = total_spend_formatted) %>%
+    filter(main_currency == the_currency) %>%
+    group_split(internal_id) %>%
+    map_dfr(~{
+        calc_targeting2(.x, exclude = T) %>%
+            mutate(#coalition = .x$coalition[1],
+                   party = .x$party[1],
+                   internal_id = .x$internal_id[1]) 
+    }) 
+  
+  saveRDS(col_each30_excl, "col_each30_excl.rds")
+
+  col_each30_incl <- election_dat30 %>%
+    mutate(total_spend = total_spend_formatted) %>%
+    filter(main_currency == the_currency) %>%
+    group_split(internal_id) %>%
+    map_dfr(~{
+        calc_targeting2(.x, exclude = F) %>%
+            mutate(#coalition = .x$coalition[1],
+                   party = .x$party[1],
+                   internal_id = .x$internal_id[1]) 
+    }) 
+  
+  saveRDS(col_each30_incl, "col_each30_incl.rds")
+  
+  
+}
+
 
 all_spend <- col_each30  %>% 
   distinct(internal_id, .keep_all = T) %>% 
@@ -82,19 +126,19 @@ gg <- col_each30  %>%
   # filter(n == 3) %>%
   mutate(target = case_when(
     target == "custom_audience" ~ "Custom Audiences",
-    target == "countries" ~ "GEOGRAPHY: Entire Country",
-    target == "regions" ~ "GEOGRAPHY: Regions",
+    target == "countries" ~ "Entire Country",
+    target == "regions" ~ "Regions",
     target == "lookalike_audience" ~ "Lookalike Audiences",
-    target == "interest" ~ "Detailed",
+    target == "interest" ~ "Interests",
     target == "age" ~ "Age",
-    target == "zips" ~ "GEOGRAPHY: Postal Code",
-    target == "CITY" ~ "GEOGRAPHY: City",
+    target == "zips" ~ "Postal Code",
+    target == "CITY" ~ "City",
     target == "language" ~ "Language",
     target == "gender" ~ "Gender",
-    target == "COMUNE" ~ "GEOGRAPHY: Municipality",
-    target == "electoral_districts" ~ "GEOGRAPHY: Electoral Districts",
-    target == "COUNTY" ~ "GEOGRAPHY: Counties",
-    str_detect(target, "NEIGHBOR") ~ "GEOGRAPHY: Neighborhood",
+    target == "COMUNE" ~ "Municipality",
+    target == "electoral_districts" ~ "Electoral Districts",
+    target == "COUNTY" ~ "Counties",
+    str_detect(target, "NEIGHBOR") ~ "Neighborhood",
     T ~ target
   )) %>%
     filter(target != "Unknown") %>%
@@ -176,7 +220,7 @@ byparty <- x %>%
       target == "countries" ~ "GEOGRAPHY: Entire Country",
       target == "regions" ~ "GEOGRAPHY: Regions",
       target == "lookalike_audience" ~ "Lookalike Audiences",
-      target == "interest" ~ "Detailed",
+      target == "interest" ~ "Interests",
       target == "age" ~ "Age",
       target == "zips" ~ "GEOGRAPHY: Postal Code",
       target == "CITY" ~ "GEOGRAPHY: City",
@@ -308,19 +352,19 @@ gg <- col_each7  %>%
   # filter(n == 3) %>%
   mutate(target = case_when(
     target == "custom_audience" ~ "Custom Audiences",
-    target == "countries" ~ "GEOGRAPHY: Entire Country",
-    target == "regions" ~ "GEOGRAPHY: Regions",
+    target == "countries" ~ "Entire Country",
+    target == "regions" ~ "Regions",
     target == "lookalike_audience" ~ "Lookalike Audiences",
-    target == "interest" ~ "Detailed",
+    target == "interest" ~ "Interests",
     target == "age" ~ "Age",
-    target == "zips" ~ "GEOGRAPHY: Postal Code",
-    target == "CITY" ~ "GEOGRAPHY: City",
+    target == "zips" ~ "Postal Code",
+    target == "CITY" ~ "City",
     target == "language" ~ "Language",
     target == "gender" ~ "Gender",
-    target == "COMUNE" ~ "GEOGRAPHY: Municipality",
-    target == "electoral_districts" ~ "GEOGRAPHY: Electoral Districts",
-    target == "COUNTY" ~ "GEOGRAPHY: Counties",
-    str_detect(target, "NEIGHBOR") ~ "GEOGRAPHY: Neighborhood",
+    target == "COMUNE" ~ "Municipality",
+    target == "electoral_districts" ~ "Electoral Districts",
+    target == "COUNTY" ~ "Counties",
+    str_detect(target, "NEIGHBOR") ~ "Neighborhood",
     T ~ target
   )) %>%
     filter(target != "Unknown") %>%

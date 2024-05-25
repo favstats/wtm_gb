@@ -68,7 +68,7 @@ thedat <- vroom::vroom("data/1c162e28-c8ab-47dc-a1d6-19e36dce7742.csv.gzip") %>%
   filter(entities_groups.group_name == "Main parties") %>% 
   filter(entities.short_name != "ZZZ") 
 
-if(sets$cntry %in% country_codes & nrow(thedat)!=0){
+# if(sets$cntry %in% country_codes & nrow(thedat)!=0){
   
   color_dat <- readRDS("data/color_dat.rds")
   
@@ -79,9 +79,9 @@ if(sets$cntry %in% country_codes & nrow(thedat)!=0){
     mutate(sources = "wtm") %>% 
     left_join(color_dat)
   
-} else {
-  wtm_data <-  tibble(no_data = T)
-}
+# } else {
+#   wtm_data <-  tibble(no_data = T)
+# }
 
 polsample <- readRDS("data/polsample.rds")
 

@@ -1,7 +1,7 @@
 project:
   type: website
   output-dir: ../docs
-
+  
 website:
   title: "{{< iconify twemoji flag-united-kingdom >}} Who Targets Me - United Kingdom"
   navbar:
@@ -12,8 +12,12 @@ website:
       - href: about.qmd
         text: "{{< iconify ph info-thin >}} About"
     right:
+        href: foverview.wmd
+        text: "{{< iconify ph article-thin >}} Overview"
       - icon: github
         href: https://github.com/favstats/wtm_gb
+      - href: https://www.whotargets.me/
+        text: whotargets.me
   sidebar:
     - id: ""
     - id: targeting
@@ -25,9 +29,6 @@ website:
         - detailed.qmd
         - location.qmd
         - demographics.qmd
-      right:
-      - href: https://www.whotargets.me/
-        text: whotargets.me
   search: false
   
 format:
