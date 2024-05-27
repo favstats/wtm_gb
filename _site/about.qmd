@@ -85,7 +85,11 @@ card
 ```
 
 
+|                            |                            |                            |
+|----------------------------|----------------------------|----------------------------|
+| <a href="https://bsky.app/profile/favstats.bsky.social"> {{< iconify arcticons bluesky size=22px >}}</a> BlueSky |  <a href="https://x.com/favstats"> {{< iconify arcticons twitter size=22px >}}</a> Twitter | <a href="https://favstats.eu"> {{< iconify arcticons emoji-web size=22px >}}</a> Personal Website |
 
+<br>
 
 
 :::: {style="display: flex; justify-content: center; align-items: center;" }

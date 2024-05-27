@@ -216,20 +216,23 @@ byparty <- x %>%
   mutate(perc = spend_per/total_spenderino*100) %>% 
     filter(perc >= 0.5) %>%
     mutate(target = case_when(
-      target == "custom_audience" ~ "Custom Audiences",
-      target == "countries" ~ "GEOGRAPHY: Entire Country",
-      target == "regions" ~ "GEOGRAPHY: Regions",
-      target == "lookalike_audience" ~ "Lookalike Audiences",
-      target == "interest" ~ "Interests",
-      target == "age" ~ "Age",
-      target == "zips" ~ "GEOGRAPHY: Postal Code",
-      target == "CITY" ~ "GEOGRAPHY: City",
-      target == "language" ~ "Language",
-      target == "gender" ~ "Gender",
-      target == "COMUNE" ~ "GEOGRAPHY: Municipality",
-      target == "electoral_districts" ~ "GEOGRAPHY: Electoral Districts",
-      target == "COUNTY" ~ "GEOGRAPHY: Counties",
-      str_detect(target, "NEIGHBOR") ~ "GEOGRAPHY: Neighborhood",
+target == "custom_audience" ~ "Custom Audiences",
+target == "countries" ~ "Whole Country",
+target == "regions" ~ "Regions",
+target == "lookalike_audience" ~ "Lookalike Audiences",
+target == "interest" ~ "Interests",
+target == "age" ~ "Age",
+target == "zips" ~ "Zip Code",
+target == "CITY" ~ "City",
+target == "language" ~ "Language",
+target == "gender" ~ "Gender",
+target == "Gender: Men" ~ "Men",
+target == "Gender: Women" ~ "Women",
+target == "COMUNE" ~ "Municipality",
+target == "electoral_districts" ~ "Electoral Districts",
+target == "COUNTY" ~ "Counties",
+target == "BOROUGH" ~ "Borough",
+str_detect(target, "NEIGHBOR") ~ "Neighborhood",
       TRUE ~ target
     )) %>%
     filter(target != "Unknown") %>%

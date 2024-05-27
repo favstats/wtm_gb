@@ -1,7 +1,7 @@
 name: "Render"
 on:
   schedule:
-    - cron: '0 5,9,12,15,18,21 * * *'
+    - cron: '0 0,5,9,12,18,21 * * *'
 # on:
   push:
     branches:
