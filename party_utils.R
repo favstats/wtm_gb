@@ -13,7 +13,7 @@ here::i_am("wtm_gb.Rproj")
 
 source(here::here("cntry.R"))
 
-all_dat <- readRDS(here::here("data/all_dat.rds"))
+# all_dat <- readRDS(here::here("data/all_dat.rds"))
 
 # print("hello")
 
@@ -65,27 +65,43 @@ country_codes <- c("AD", "AL", "AM", "AR", "AT",
                    "VE", "ZA")
 
 
-thedat <- vroom::vroom("data/1c162e28-c8ab-47dc-a1d6-19e36dce7742.csv.gzip") %>% 
+thedat <- vroom::vroom("data/722fe36a-3d43-4446-9811-2ea802be7c33.csv.gzip") %>% 
   filter(entities_groups.group_name == "Main parties") %>% 
   filter(entities.short_name != "ZZZ") 
 
 
+all_dat <- thedat %>% 
+  #glimpse() %>% 
+  rename(page_id = advertisers_platforms.advertiser_platform_ref,
+         party = entities.name,
+         colors = entities.color)  %>% 
+  filter(!(entities.short_name %in% c("ConMain","MoL","HC", "Hou", "Bunce", "ZG", "ZZZ", "LabTop100", "McEwan", "Parker", "SH", "NI"))) %>% 
+  filter(!(party %in% c("Others"))) %>% 
+  mutate(page_id = as.character(page_id))
+
+color_dat <- all_dat %>% distinct(party, colors) %>% 
+  mutate(colors = case_when(
+    colors == "green" ~ "#008000",
+    colors == "gold" ~ "#ffd700",
+    T ~ colors
+  ))
+
 # if(!custom){
 #   if(sets$cntry %in% country_codes & nrow(thedat)!=0){
-    res <- GET(url = paste0("https://data-api.whotargets.me/entities?%24client%5BwithCountries%5D=true&countries.alpha2%5B%24in%5D%5B0%5D=", str_to_lower(sets$cntry)))
-    color_dat <- content(res) %>% 
-      flatten() %>% 
-      map(compact)%>% 
-      map_dfr(as_tibble) %>% 
-      drop_na(id) %>% 
-      distinct(name, .keep_all = T) %>% 
-      ## this is a speccial UK thing
-      rename(party = name) %>% 
-      select(party, short_name, contains("color")) %>% 
-      setColors() %>% 
-      rename(colors = color) %>% 
-      filter(!short_name %in% c("ConMain","MoL","HC", "Hou", "Bunce", "ZG", "ZZZ", "LabTop100", "McEwan", "Parker", "SH", "NI"))
-    
+    # res <- GET(url = paste0("https://data-api.whotargets.me/entities?%24client%5BwithCountries%5D=true&countries.alpha2%5B%24in%5D%5B0%5D=", str_to_lower(sets$cntry)))
+    # color_dat <- content(res) %>%
+    #   flatten() %>%
+    #   map(compact)%>%
+    #   map_dfr(as_tibble) %>%
+    #   drop_na(id) %>%
+    #   distinct(name, .keep_all = T) %>%
+    #   ## this is a speccial UK thing
+    #   rename(party = name) %>%
+    #   select(party, short_name, contains("color")) %>%
+    #   setColors() %>%
+    #   rename(colors = color) %>%
+    #   filter(!short_name %in% c("ConMain","MoL","HC", "Hou", "Bunce", "ZG", "ZZZ", "LabTop100", "McEwan", "Parker", "SH", "NI"))
+
   # } else {
   #   polsample <- readRDS(here::here("data/polsample.rds"))
   #   partycolorsdataset  <- readRDS(here::here("data/partycolorsdataset.rds"))
@@ -132,7 +148,7 @@ scale_color_parties <- function(...){
 
 # print("hello")
 
-if(Sys.info()[["user"]] != "fabio"){
+if(!(Sys.info()[["user"]] %in% c("fabio"))){
   out <- sets$cntry %>% 
     map(~{
       .x %>% 
@@ -175,7 +191,7 @@ if(Sys.info()[["user"]] != "fabio"){
   
   # try({
   election_dat30 <- arrow::read_parquet(paste0("https://github.com/favstats/meta_ad_targeting/releases/download/", sets$cntry, "-last_", 30,"_days/", thosearethere$ds[1], ".parquet")) %>% 
-    select(-party) %>% 
+    select(-contains("party")) %>% 
     left_join(all_dat %>% select(page_id, party))
   # })
   
@@ -222,7 +238,7 @@ if(Sys.info()[["user"]] != "fabio"){
   
   # try({
   election_dat7 <- arrow::read_parquet(paste0("https://github.com/favstats/meta_ad_targeting/releases/download/", sets$cntry, "-last_", 7,"_days/", thosearethere$ds[1], ".parquet"))  %>% 
-    select(-party) %>% 
+    select(-contains("party")) %>% 
     left_join(all_dat %>% select(page_id, party))
 }
 
@@ -238,18 +254,18 @@ if(!exists("election_dat7")){
 
 # if(sets$cntry %in% country_codes & nrow(thedat)!=0){
   
-  
+  # election_dat30 <- 
   
   
   election_dat30 <- election_dat30 %>%
-    rename(internal_id = contains("page_id")) %>%
+    # rename(internal_id = contains("page_id")) %>%
     filter(is.na(no_data)) %>% 
     drop_na(party) %>% 
     filter(party %in% color_dat$party)
-  
+
   
   election_dat7 <- election_dat7 %>%
-    rename(internal_id = contains("page_id")) %>%
+    # rename(internal_id = contains("page_id")) %>%
     filter(is.na(no_data)) %>% 
     drop_na(party) %>% 
     filter(party %in% color_dat$party)
@@ -319,7 +335,8 @@ if(!exists("election_dat7")){
 
 
 # election_dat30test <<- election_dat30
-
+  election_dat30$internal_id <- election_dat30$page_id
+  election_dat7$internal_id <- election_dat7$page_id
 # saveRDS(election_dat30, "here::here(data/election_dat30.rds")
 # saveRDS(election_dat7, "here::here(data/election_dat7.rds")
 

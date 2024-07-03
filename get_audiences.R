@@ -64,7 +64,7 @@ write_lines(lubridate::as_date(tstamp), "tstamp.txt")
 
 # tstamp <- Sys.time()
 
-thedat <- vroom::vroom("data/1c162e28-c8ab-47dc-a1d6-19e36dce7742.csv.gzip") %>% 
+thedat <- vroom::vroom("data/722fe36a-3d43-4446-9811-2ea802be7c33.csv.gzip") %>% 
   filter(entities_groups.group_name == "Main parties") %>% 
   filter(entities.short_name != "ZZZ") 
 
