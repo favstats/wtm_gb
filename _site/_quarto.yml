@@ -1,0 +1,40 @@
+project:
+  type: website
+  output-dir: ../docs
+  
+website:
+  title: "Who Targets Me - GE2024"
+  favicon: "wtm_logo_2020_transparent-150x150.png"
+  navbar:
+    logo: "wtm_logo_2020_transparent-300x300.png"
+    left:
+      - href: index.qmd
+        text: "{{< iconify ph coins-thin >}} Spending"
+      - sidebar:targeting
+      - href: foverview.qmd
+        text: "{{< iconify ph article-thin >}} Overview"
+    right:
+      - href: about.qmd
+        text: "{{< iconify ph info-thin >}} About"
+      - href: https://www.whotargets.me/
+        text: whotargets.me
+  sidebar:
+    - id: ""
+    - id: targeting
+      title: "{{< iconify ph users-three-thin >}} Targeting"
+      style: "docked"
+      collapse-level: 2
+      contents:
+        - targeting.qmd
+        - detailed.qmd
+        - location.qmd
+        - demographics.qmd
+  search: false
+  
+format:
+  html:
+    theme:
+      - cosmo
+      - custom.scss
+    fontsize: 1.2em
+
