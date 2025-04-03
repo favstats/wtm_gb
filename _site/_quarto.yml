@@ -3,7 +3,7 @@ project:
   output-dir: ../docs
   
 website:
-  title: "Who Targets Me - GE2024"
+  title: "Who Targets Me - Great Britain"
   favicon: "wtm_logo_2020_transparent-150x150.png"
   navbar:
     logo: "wtm_logo_2020_transparent-300x300.png"
