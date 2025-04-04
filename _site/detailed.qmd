@@ -3,14 +3,12 @@ title: "Detailed Targeting"
 description-meta: "How do political parties chase your vote, what do they want to keep hidden, and how much money do they spend on it? In the lead-up to the elections, we monitor political microtargeting."
 format:
   html:
-    toc: true
-    toc-location: right
     page-layout: full
 ---
 
 
 ```{r setup, include=FALSE}
-here::i_am("wtm_gb.Rproj")
+# here::i_am("wtm_gb.Rproj")
 
 ## Global options
 knitr::opts_chunk$set(
@@ -28,13 +26,35 @@ library(tidyverse)
 library(highcharter)
 library(gt)
 
-pacman::p_load(knitr, tidyverse, rmarkdown, openxlsx, sf, shiny)
+pacman::p_load(knitr, tidyverse, rmarkdown, openxlsx, shiny, rvest)
 
 
 source(here::here("utils.R"))
 source(here::here("party_utils.R"))
+
+color_dat <- color_dat %>% 
+  mutate(colors = case_when(
+    colors == "orange" ~ "#f77604",
+    colors == "green" ~ "#7aba2d",
+    colors == "darkgray" ~ "#A9A9A9",
+    colors == "darkblue" ~ "#000080",
+    colors == "lightblue" ~ "#ADD8E6",
+    colors == "#ccc" ~ "#cccccc",
+    is.na(colors) ~ "#00BFFF",
+    T ~ colors
+  ))
+
+# color_dat
+
+color_dat <- distinct(color_dat, party, .keep_all = TRUE) %>% drop_na()
+
+sets <- list(cntry = "GB")
+
 ```
 
+
+
+::: {.panel-tabset}
 
 ## Top Targeted Audiences
 
@@ -49,6 +69,7 @@ The chart below displays the most utilized targeting criteria by political parti
 ```{r}
 
 byparty30 <- election_dat30 %>%
+    mutate(total_spend_formatted = ifelse(total_spend_formatted == 100, 1, total_spend_formatted)) %>%
   distinct(internal_id, party, .keep_all = T) %>%
   group_by(party) %>%
   summarize(total_spenderino = sum(total_spend_formatted)) %>%
@@ -56,6 +77,7 @@ byparty30 <- election_dat30 %>%
   select(party, total_spenderino)
 
 byparty7 <- election_dat7 %>%
+    mutate(total_spend_formatted = ifelse(total_spend_formatted == 100, 1, total_spend_formatted)) %>%
   distinct(internal_id, party, .keep_all = T) %>%
   group_by(party) %>%
   summarize(total_spenderino = sum(total_spend_formatted)) %>%
@@ -66,9 +88,9 @@ interest_targeting30 <-  election_dat30 %>%
     mutate(total_spend = total_spend_formatted) %>%
     filter(type == "detailed") %>%
     # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>%
-    mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%
+    mutate(total_spend = ifelse(total_spend == 100, 1, total_spend)) %>%
     mutate(total_spend = total_spend * total_spend_pct) %>%
-    filter(main_currency == the_currency)  %>%
+    # filter(main_currency == the_currency)   %>%
     # left_join(page_names %>% select(internal_id = page_id, page_name) %>% distinct(internal_id, .keep_all =T)) %>%
     # left_join(us_advertisers %>% rename(internal_id = page_id)) %>%
     # drop_na(left_vs_right) %>%
@@ -84,7 +106,7 @@ interest_targeting30 <-  election_dat30 %>%
 #     ggplot(aes())
 
 contested_dat30 <- interest_targeting30 %>%
-  filter(!is_exclusion) %>%
+  filter(is_exclusion==FALSE) %>%
   # filter(total_spend >= 40000) %>%
   filter(total_spend >= 1) %>%
   # add_count(value) %>%
@@ -104,7 +126,7 @@ interest_targeting7 <-  election_dat7 %>%
     # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>%
     mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%
     mutate(total_spend = total_spend * total_spend_pct) %>%
-    filter(main_currency == the_currency)  %>%
+    # filter(main_currency == the_currency)   %>%
     # left_join(page_names %>% select(internal_id = page_id, page_name) %>% distinct(internal_id, .keep_all =T)) %>%
     # left_join(us_advertisers %>% rename(internal_id = page_id)) %>%
     # drop_na(left_vs_right) %>%
@@ -120,7 +142,7 @@ interest_targeting7 <-  election_dat7 %>%
 #     ggplot(aes())
 
 contested_dat7 <- interest_targeting7 %>%
-  filter(!is_exclusion) %>%
+  filter(is_exclusion == FALSE) %>%
   # filter(total_spend >= 40000) %>%
   filter(total_spend >= 1) %>%
   # add_count(value) %>%
@@ -134,6 +156,9 @@ contested_dat7 <- interest_targeting7 %>%
 ```
 
 
+
+
+
 ### `r last30days_string`
 
 
@@ -141,9 +166,9 @@ contested_dat7 <- interest_targeting7 %>%
 
 ```{r, fig.width=16, fig.height=12, dpi=300}
 
-generate_plots <- function(data, exclusion = F) {
-
-  if(exclusion){
+generate_plots <- function(data, exclusion = FALSE) {
+  
+  if (exclusion) {
     wooord <- "on ads excluding"
     wooord2 <- "excluding"
   } else {
@@ -151,12 +176,27 @@ generate_plots <- function(data, exclusion = F) {
     wooord2 <- "targeting"
   }
 
+  set.seed(24101991)
+  # Process data
   gg <- data %>%
     group_by(party) %>%
     arrange(desc(perc)) %>%
-    distinct(value, .keep_all = T) %>%
-    slice(1:10)
+    distinct(value, .keep_all = TRUE) %>%
+    group_modify(~ {
+      if (length(unique(.x$perc[1:20])) == 1) {
+        # Randomly sample if all top 10 perc are tied
+        .x %>% slice_sample(n = 20)
+      } else {
+        # Take top 10 normally
+        .x %>% slice(1:20)
+      }
+    }) %>%
+    ungroup() %>% 
+    arrange(desc(perc))
 
+  color_dat <- distinct(color_dat, party, .keep_all = TRUE) %>% drop_na()
+
+  # Create plots
   plots <- gg %>%
     mutate(spend_perlab = scales::comma(round(total_spend))) %>%
     mutate(perc = perc * 100) %>%
@@ -170,8 +210,7 @@ generate_plots <- function(data, exclusion = F) {
         hc_plotOptions(bar = list(horizontal = TRUE, stacking = "normal")) %>%
         hc_yAxis(
           title = list(text = paste0("% party budget spent on ", wooord2, " audience")),
-          max = max(data$perc*100)#,
-          # min = 0
+          max = max(data$perc * 100)
         ) %>%
         hc_xAxis(title = "", labels = list(style = list(fontSize = "10px"))) %>%
         hc_add_theme(hc_theme_google()) %>%
@@ -188,19 +227,21 @@ generate_plots <- function(data, exclusion = F) {
           align = "left",
           style = list(fontWeight = "bold")
         ) %>%
-        hc_size(height = 300) %>%
+        hc_size(height = 500) %>%
         hc_exporting(enabled = TRUE)
     })
 
   return(plots)
-
-  # columns <- ggplot2::ggarrange(plots[[1]], plots[[2]], ncol = 2)
-  # highcharter::hchart(columns, spacing = list(right = 100))
 }
 
 
 ```
 
+
+
+```{r}
+
+```
 
 
 ```{r echo=FALSE, results='asis'}
@@ -286,7 +327,6 @@ tags$div(class = "container", do.call(tags$div, rows))
 :::
 
 <br>
-<br>
 
 ## Top Excluded Audiences
 
@@ -305,7 +345,7 @@ interest_excluding30 <-  election_dat30 %>%
     # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>%
     mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%
     mutate(total_spend = total_spend * total_spend_pct) %>%
-    filter(main_currency == the_currency)  %>%
+    # filter(main_currency == the_currency)   %>%
     # left_join(page_names %>% select(internal_id = page_id, page_name) %>% distinct(internal_id, .keep_all =T)) %>%
     # left_join(us_advertisers %>% rename(internal_id = page_id)) %>%
     # drop_na(left_vs_right) %>%
@@ -321,7 +361,7 @@ interest_excluding30 <-  election_dat30 %>%
 #     ggplot(aes())
 
 excluded_dat30 <- interest_excluding30 %>%
-  filter(is_exclusion) %>%
+  filter(is_exclusion == T) %>%
   # filter(total_spend >= 40000) %>%
   filter(total_spend >= 1) %>%
   # add_count(value) %>%
@@ -340,9 +380,9 @@ interest_excluding7 <-  election_dat7 %>%
     mutate(total_spend = total_spend_formatted) %>%
     filter(type == "detailed") %>%
     # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>%
-    mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%
+    mutate(total_spend = ifelse(total_spend == 100, 1, total_spend)) %>%
     mutate(total_spend = total_spend * total_spend_pct) %>%
-    filter(main_currency == the_currency)  %>%
+    # filter(main_currency == the_currency)   %>%
     # left_join(page_names %>% select(internal_id = page_id, page_name) %>% distinct(internal_id, .keep_all =T)) %>%
     # left_join(us_advertisers %>% rename(internal_id = page_id)) %>%
     # drop_na(left_vs_right) %>%
@@ -358,7 +398,7 @@ interest_excluding7 <-  election_dat7 %>%
 #     ggplot(aes())
 
 excluded_dat7 <- interest_excluding7 %>%
-  filter(is_exclusion) %>%
+  filter(is_exclusion == T) %>%
   # filter(total_spend >= 40000) %>%
   filter(total_spend >= 1) %>%
   # add_count(value) %>%
@@ -458,7 +498,6 @@ tags$div(class = "container", do.call(tags$div, rows))
 :::
 
 <br>
-<br>
 
 ## Top Contested Audiences
 
@@ -469,29 +508,27 @@ The charts below show the target audiences where most competition takes place. F
 
 ```{r, fig.width  = 13, fig.height=15}
 
-
-get_contested_graph <- function(ppp, minamount = 1000, n_parties = 3) {
+most_left_party <- "Pro-Democrat"
+get_contested_graph <- function(ppp, minamount = 1000, n_parties = 2) {
 
     # ppp <- election_dat30
 interest_targeting <-  ppp %>%
     mutate(total_spend = total_spend_formatted) %>%
     filter(type == "detailed") %>%
     # mutate(total_spend = readr::parse_number(total_spend_formatted)) %>%
-    mutate(total_spend = ifelse(total_spend == 50, 50, total_spend)) %>%
-    mutate(total_spend = total_spend * total_spend_pct) %>%
-    filter(main_currency == the_currency)  %>%
+    # filter(main_currency == the_currency)   %>%
     # left_join(page_names %>% select(internal_id = page_id, page_name) %>% distinct(internal_id, .keep_all =T)) %>%
     # left_join(us_advertisers %>% rename(internal_id = page_id)) %>%
     # drop_na(left_vs_right) %>%
     mutate(value = paste0(detailed_type,": ", value)) %>%
     group_by(party, value, is_exclusion, detailed_type) %>%
   # mutate(value = str_replace_all(value, " \\s*\\([^\\)]+\\)", "")) %>%
-    summarise(total_spend = sum(total_spend)) %>%
+    summarise(total_spend = sum(total_spend_formatted)) %>%
     ungroup() %>%
     arrange(desc(total_spend))
 
 contested_dat <<- interest_targeting %>%
-  filter(!is_exclusion) %>%
+  filter(is_exclusion==FALSE) %>%
   # filter(total_spend >= 40000) %>%
   filter(total_spend >= minamount) %>%
   add_count(value) %>%
@@ -506,7 +543,7 @@ contested_dat <<- interest_targeting %>%
 justkeeptop20 <- contested_dat %>%
   arrange(desc(total_spenderino)) %>%
   distinct(value, total_spenderino) %>%
-  slice(1:20)
+  slice(1:10)
 
 contested_dat <- contested_dat %>%
   filter(value %in% justkeeptop20$value)
@@ -590,22 +627,63 @@ contested_dat <- contested_dat %>%
 ### `r last30days_string`
 
 ```{r}
+
+aggregated_data <- election_dat30   %>%
+  filter(type == "detailed") %>% 
+    mutate(total_spend_formatted = ifelse(total_spend_formatted == 100, 1, total_spend_formatted)) %>%
+    mutate(total_spend_formatted = total_spend_formatted * total_spend_pct) %>% 
+  left_join(color_dat) %>% 
+  rename(color = colors) %>% 
+  # mutate(party = case_when(
+  #   str_detect(party, "Democrat|Kamala|Prog") ~ "Pro-Democrat",
+  #   str_detect(party, "Republican|Trump|Conserv") ~ "Pro-Republican",
+  #   TRUE ~ party # Keep other parties unchanged
+  # )) %>%
+  # Retain the necessary columns and compute total spend
+  group_by(party, value, is_exclusion, detailed_type, type, color) %>%
+  summarise(
+    total_spend_formatted = sum(total_spend_formatted, na.rm = TRUE),
+    num_ads = sum(num_ads, na.rm = TRUE)
+  ) %>%
+  ungroup() %>% 
+  drop_na(party)
 # debugonce(get_contested_graph)
-thegraph30 <- get_contested_graph(election_dat30, minamount = 100)
+# color_dat <- tibble(party = c("Pro-Democrat", "Pro-Republican"), colors = c("#293ad6", "#ee111a"))
+
+thegraph30 <- get_contested_graph(aggregated_data, minamount = 100)
 
 if(length(thegraph30$x$hc_opts$series)!=0){
   thegraph30
 } else {
   shiny::HTML("No data (yet).")
 }
+
 ```
 
 
 ### `r last7days_string`
 
 ```{r}
-
-thegraph7 <- get_contested_graph(election_dat7, minamount = 100)
+aggregated_data <- election_dat7   %>%
+  filter(type == "detailed") %>% 
+    mutate(total_spend_formatted = ifelse(total_spend_formatted == 100, 1, total_spend_formatted)) %>%
+    mutate(total_spend_formatted = total_spend_formatted * total_spend_pct) %>% 
+  left_join(color_dat) %>% 
+  rename(color = colors) %>% 
+  # mutate(party = case_when(
+  #   str_detect(party, "Democrat|Kamala|Prog") ~ "Pro-Democrat",
+  #   str_detect(party, "Republican|Trump|Conserv") ~ "Pro-Republican",
+  #   TRUE ~ party # Keep other parties unchanged
+  # )) %>%
+  # Retain the necessary columns and compute total spend
+  group_by(party, value, is_exclusion, detailed_type, type, color) %>%
+  summarise(
+    total_spend_formatted = sum(total_spend_formatted, na.rm = TRUE),
+    num_ads = sum(num_ads, na.rm = TRUE)
+  ) %>%
+  ungroup() %>% 
+  drop_na(party)
+thegraph7 <- get_contested_graph(aggregated_data, minamount = 100)
 
 
 if(length(thegraph7$x$hc_opts$series)!=0){
@@ -615,5 +693,7 @@ if(length(thegraph7$x$hc_opts$series)!=0){
 }
 
 ```
+
+:::
 
 :::

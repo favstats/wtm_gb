@@ -9,7 +9,7 @@ format:
 ---
 
 ```{r setup, include=FALSE}
-here::i_am("wtm_gb.Rproj")
+# here::i_am("wtm_gb.Rproj")
 
 ## Global options
 knitr::opts_chunk$set(
@@ -26,15 +26,19 @@ library(tidyverse)
 library(highcharter)
 library(gt)
 
-pacman::p_load(knitr, tidyverse, rmarkdown, openxlsx, sf, shiny)
+pacman::p_load(knitr, tidyverse, rmarkdown, openxlsx, shiny, rvest)
 
 # here::dr_here()
 source(here::here("utils.R"))
 source(here::here("party_utils.R"))
 
+sets <- list(cntry = "GB")
+
 ```
 
-## Age Targeting
+::: {.panel-tabset}
+
+## Age
 
 
 The following graphs illustrate how parties target different age groups and the percentage of the budget allocated to them.
@@ -277,11 +281,10 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
-<br>
 
-## Gender Targeting
+## Gender
 
-The graphs below show how parties target gender and what percentage of the budget was spent on it.
+De onderstaande grafieken laten zien hoe partijen gender als focusgroep gebruiken en welk percentage van het budget daaraan werd uitgegeven.
 
 > Note: targeting criteria may overlap, so the total may not necessarily be 100%.
 
@@ -461,9 +464,8 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
-<br>
 
-## Language Targeting
+## Language
 
 The following graphs show how parties use different languages as focus groups and the percentage of the budget allocated to them.
 
@@ -641,9 +643,8 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
-<br>
 
-## Targeting based on Employment or Education Instituation
+##  Employment/Education Institution
 
 The following graphs depict how parties utilize various job sectors and types of education as focus groups and the percentage of the budget allocated to them. The next graph focuses on educational levels.
 
@@ -671,7 +672,7 @@ total_sppppeen <- x %>%
 x %>%
     filter(type == "detailed") %>%
     filter(detailed_type == "DEMOGRAPHICS") %>%
-  filter(!is_exclusion) %>%
+  filter(is_exclusion == FALSE) %>%
     # count(value, sort = T) %>%
     filter(str_detect(value, "Associate degree|Doctorate degree|In college|Master's degree|Some college|Some grad school|High school grad|In high school|Professional degree|Some high school|College grad|In grad school", negate = T)) %>%
     # filter(str_detect(value, "MBO", negate = T)) %>%
@@ -893,9 +894,8 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
-<br>
 
-## Education Levels Targeting
+## Education Levels
 
 The graphs below illustrate how parties target various education levels as focus groups and the percentage of the budget allocated to each.
 
@@ -925,7 +925,7 @@ total_sppppeen <- x %>%
 x %>%
     filter(type == "detailed") %>%
     filter(detailed_type == "DEMOGRAPHICS") %>%
-  filter(!is_exclusion) %>%
+  filter(is_exclusion == FALSE) %>%
     # count(value, sort = T) %>%
     filter(str_detect(value, "Associate degree|Doctorate degree|In college|Master's degree|Some college|Some grad school|High school grad|In high school|Professional degree|Some high school|College grad|In grad school")) %>%
     filter(str_detect(value, "MBO", negate = T)) %>%
@@ -1120,15 +1120,15 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 <br>
-<br>
 
-## Relationship Status Targeting
+## Relationship Status
 
 The following graphs reveal how political parties utilize different relationship statuses as focus groups and the percentage of the budget allocated to them.
 
 > Note: targeting criteria may overlap, so the total may not necessarily be 100%.
 
 ::: panel-tabset
+
 ### `r last30days_string`
 
 ```{r, fig.width= 8, fig.height=5, dpi = 300}
@@ -1150,7 +1150,7 @@ total_sppppeen <- x %>%
 x %>%
     filter(type == "detailed") %>%
     filter(detailed_type == "DEMOGRAPHICS") %>%
-  filter(!is_exclusion) %>%
+  filter(is_exclusion == FALSE) %>%
     # count(value, sort = T) %>%
     filter(str_detect(value, relationshipstuff)) %>%
     # filter(str_detect(value, "MBO", negate = T)) %>%
@@ -1344,5 +1344,7 @@ tags$div(class = "container", do.call(tags$div, rows))
 
 
 ```
+:::
+
 :::
 
