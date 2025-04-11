@@ -282,7 +282,7 @@ try({
   
   url <- "https://data-api.whotargets.me/advertisers-export-csv"
   
-  token <- Sys.getenv("WHO")
+  token <- Sys.getenv("WHO_TARGETS_TOKEN")
   
   headers <- add_headers(
     accept = "application/json",
