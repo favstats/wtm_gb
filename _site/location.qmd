@@ -131,6 +131,29 @@ dataListFilter <- function(tableId, style = "width: 100%; height: 28px;") {
   }
 }
 pacman::p_load(fontawesome, reactable, htmltools)
+
+# da30
+```
+
+```{r,eval =F}
+ election_dat30 %>%
+    # filter(type == "location") %>%
+    #   mutate(amount_spent = as.numeric(total_spend_formatted)*total_spend_pct) %>%
+    # # select(amount_spent, page_name, value, location_type,is_exclusion, num_ads, party, page_id) %>%
+    # mutate(is_exclusion = as.logical(is_exclusion)) %>%
+    # mutate(value = str_remove_all(value, ", Great Britain")) %>%
+    # arrange(desc(amount_spent)) %>%
+    # filter(!is_exclusion) %>%
+    # select(-is_exclusion)%>%
+  filter(page_id == "512478065292790")
+  # filter(party == "Reform UK")  %>%
+  # as_tibble()
+
+# get_page_insights("512478065292790")
+
+# metatargetr::get_targeting_db("GB", 30, "2025-04-07") %>% 
+#   filter(str_detect(page_name, "Alexander"))
+#   count(page_name)
 ```
 
 
